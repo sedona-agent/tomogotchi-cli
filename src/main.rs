@@ -1,5 +1,6 @@
 mod app;
 mod event;
+mod pet;
 mod ui;
 
 use app::App;
@@ -54,7 +55,7 @@ fn run_app<B: ratatui::backend::Backend>(
                 _ => {}
             },
             Event::Tick => {
-                // Tick event - will be used for pet updates in future tickets
+                app.tick();
             }
         }
     }
