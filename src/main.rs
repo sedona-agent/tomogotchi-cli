@@ -52,6 +52,8 @@ fn run_app<B: ratatui::backend::Backend>(
                 KeyCode::Char('c') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
                     app.quit()
                 }
+                KeyCode::Char('f') | KeyCode::Char('F') => app.feed(),
+                KeyCode::Char('p') | KeyCode::Char('P') => app.play(),
                 _ => {}
             },
             Event::Tick => {

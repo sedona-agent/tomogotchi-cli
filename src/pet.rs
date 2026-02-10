@@ -2,6 +2,10 @@
 const HUNGER_DECAY: u8 = 2;
 /// Happiness decay per tick
 const HAPPINESS_DECAY: u8 = 1;
+/// Hunger restored when fed
+const FEED_AMOUNT: u8 = 20;
+/// Happiness restored when played with
+const PLAY_AMOUNT: u8 = 15;
 
 /// Pet mood based on stats
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -44,6 +48,16 @@ impl Pet {
             20..=39 => Mood::Sad,
             _ => Mood::Miserable,
         }
+    }
+
+    /// Feed the pet, restoring hunger
+    pub fn feed(&mut self) {
+        self.hunger = self.hunger.saturating_add(FEED_AMOUNT).min(100);
+    }
+
+    /// Play with the pet, restoring happiness
+    pub fn play(&mut self) {
+        self.happiness = self.happiness.saturating_add(PLAY_AMOUNT).min(100);
     }
 }
 
@@ -96,5 +110,37 @@ mod tests {
         pet.hunger = 10;
         pet.happiness = 10;
         assert_eq!(pet.mood(), Mood::Miserable);
+    }
+
+    #[test]
+    fn test_feed_increases_hunger() {
+        let mut pet = Pet::new("Tomo".to_string());
+        pet.hunger = 50;
+        pet.feed();
+        assert_eq!(pet.hunger, 70);
+    }
+
+    #[test]
+    fn test_feed_caps_at_100() {
+        let mut pet = Pet::new("Tomo".to_string());
+        pet.hunger = 95;
+        pet.feed();
+        assert_eq!(pet.hunger, 100);
+    }
+
+    #[test]
+    fn test_play_increases_happiness() {
+        let mut pet = Pet::new("Tomo".to_string());
+        pet.happiness = 50;
+        pet.play();
+        assert_eq!(pet.happiness, 65);
+    }
+
+    #[test]
+    fn test_play_caps_at_100() {
+        let mut pet = Pet::new("Tomo".to_string());
+        pet.happiness = 90;
+        pet.play();
+        assert_eq!(pet.happiness, 100);
     }
 }

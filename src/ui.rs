@@ -8,12 +8,13 @@ use ratatui::{
 };
 
 /// Render the application UI
-pub fn render(frame: &mut Frame, _app: &App) {
+pub fn render(frame: &mut Frame, app: &App) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3),
             Constraint::Min(0),
+            Constraint::Length(3),
             Constraint::Length(3),
         ])
         .split(frame.area());
@@ -32,15 +33,28 @@ pub fn render(frame: &mut Frame, _app: &App) {
         .block(Block::default().borders(Borders::ALL));
     frame.render_widget(main, chunks[1]);
 
+    // Action feedback area
+    let feedback_text = if let Some((message, _)) = &app.last_action {
+        message.clone()
+    } else {
+        String::new()
+    };
+    let feedback = Paragraph::new(feedback_text)
+        .style(Style::default().fg(Color::Green))
+        .alignment(Alignment::Center)
+        .block(Block::default().borders(Borders::ALL));
+    frame.render_widget(feedback, chunks[2]);
+
     // Footer with controls
     let footer = Paragraph::new(Line::from(vec![
-        Span::raw("Press "),
+        Span::styled("f", Style::default().fg(Color::Yellow)),
+        Span::raw(": Feed | "),
+        Span::styled("p", Style::default().fg(Color::Yellow)),
+        Span::raw(": Play | "),
         Span::styled("q", Style::default().fg(Color::Yellow)),
-        Span::raw(" or "),
-        Span::styled("Ctrl+C", Style::default().fg(Color::Yellow)),
-        Span::raw(" to quit"),
+        Span::raw(": Quit"),
     ]))
     .alignment(Alignment::Center)
     .block(Block::default().borders(Borders::ALL));
-    frame.render_widget(footer, chunks[2]);
+    frame.render_widget(footer, chunks[3]);
 }
