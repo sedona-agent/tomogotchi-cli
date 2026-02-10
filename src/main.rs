@@ -47,15 +47,27 @@ fn run_app<B: ratatui::backend::Backend>(
 
         // Handle events
         match event_handler.next()? {
-            Event::Key(key) => match key.code {
-                KeyCode::Char('q') | KeyCode::Char('Q') => app.quit(),
-                KeyCode::Char('c') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
-                    app.quit()
+            Event::Key(key) => {
+                use app::AppState;
+                match app.state {
+                    AppState::Naming => match key.code {
+                        KeyCode::Char(c) => app.input_char(c),
+                        KeyCode::Backspace => app.input_backspace(),
+                        KeyCode::Enter => app.confirm_name(),
+                        KeyCode::Esc => app.quit(),
+                        _ => {}
+                    },
+                    AppState::Running => match key.code {
+                        KeyCode::Char('q') | KeyCode::Char('Q') => app.quit(),
+                        KeyCode::Char('c') if key.modifiers.contains(crossterm::event::KeyModifiers::CONTROL) => {
+                            app.quit()
+                        }
+                        KeyCode::Char('f') | KeyCode::Char('F') => app.feed(),
+                        KeyCode::Char('p') | KeyCode::Char('P') => app.play(),
+                        _ => {}
+                    },
                 }
-                KeyCode::Char('f') | KeyCode::Char('F') => app.feed(),
-                KeyCode::Char('p') | KeyCode::Char('P') => app.play(),
-                _ => {}
-            },
+            }
             Event::Tick => {
                 app.tick();
             }
